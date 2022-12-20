@@ -19,11 +19,11 @@ import { useRef } from 'react';
 const SchedulerUi = ({
   showCurrentTime = false,
   showSecondTimeline = false,
-  showSecondTime = false,
+  secondTime = moment().utcOffset('-0700').add(12, 'hour'),
   startDate = moment().startOf('day'),
   data,
   dayCellWidth = '2.6%',
-  oddColor = 'rgba(8,132,199,.04)',
+  evenColor = '#0884c70c',
   header,
   customResourceTableWidth = '2.6%',
   isLoading = false,
@@ -34,6 +34,8 @@ const SchedulerUi = ({
   currentTime = moment().utcOffset('-0700'),
 }) => {
   const [lineWidth, setlineWidth] = useState(0);
+  const [secondlineWidth, setsecondlineWidth] = useState(0);
+  const [secondlineTime, setsecondlineTime] = useState(secondTime);
   const [isInternalLoading, setisInternalLoading] = useState(0);
   const [localCurrentTime, setlocalCurrentTime] = useState(currentTime);
   const currViewData = useRef({});
@@ -56,10 +58,30 @@ const SchedulerUi = ({
     }
     setlineWidth(finalData);
   };
+  const secondLineWidthCal = (tim, isTime = 0, isNormal = false) => {
+    let cellWidthPerMinute =
+      document.querySelector('.scheduler-bg-table thead th.header3-text')
+        ?.clientWidth / 60;
+    let timewidth =
+      toNumber(moment(secondlineTime).format('mm')) * cellWidthPerMinute;
+    const finalData =
+      (document.querySelector('.scheduler-bg-table thead th.header3-text')
+        ?.clientWidth +
+        1) *
+        tim +
+      document.querySelector('#RBS-Scheduler-root tbody tr td')?.clientWidth +
+      timewidth -
+      isTime;
+    if (isNormal) {
+      return finalData;
+    }
+    setsecondlineWidth(finalData);
+  };
 
   useEffect(() => {
     const timeinterval = setInterval(() => {
       setlocalCurrentTime(moment(localCurrentTime).add(1, 'minute'));
+      setsecondlineTime(moment(secondlineTime).add(1, 'minute'));
     }, 60000);
 
     return () => {
@@ -83,14 +105,23 @@ const SchedulerUi = ({
       let lineHours =
         toNumber(moment(localCurrentTime).format('HH')) -
         toNumber(moment(startDate).format('HH'));
+      let secondlineHours =
+        toNumber(moment(secondlineTime).format('HH')) -
+        toNumber(moment(startDate).format('HH'));
       if (lineHours < 0) {
         lineHours =
           24 -
           toNumber(moment(startDate).format('HH')) +
           toNumber(moment(localCurrentTime).format('HH'));
       }
-      console.log('lineHours', lineHours);
+      if (secondlineHours < 0) {
+        secondlineHours =
+          24 -
+          toNumber(moment(startDate).format('HH')) +
+          toNumber(moment(secondlineTime).format('HH'));
+      }
       cellWidth(lineHours);
+      secondLineWidthCal(secondlineHours);
     }, 500);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [header]);
@@ -99,17 +130,28 @@ const SchedulerUi = ({
     let lineHours =
       toNumber(moment(localCurrentTime).format('HH')) -
       toNumber(moment(startDate).format('HH'));
+    let secondlineHours =
+      toNumber(moment(secondlineTime).format('HH')) -
+      toNumber(moment(startDate).format('HH'));
     if (lineHours < 0) {
-      lineHours = 3;
+      lineHours =
+        24 -
+        toNumber(moment(startDate).format('HH')) +
+        toNumber(moment(localCurrentTime).format('HH'));
+    }
+    if (secondlineHours < 0) {
+      secondlineHours =
+        24 -
+        toNumber(moment(startDate).format('HH')) +
+        toNumber(moment(secondlineTime).format('HH'));
     }
     cellWidth(lineHours);
-    console.log(132, lineHours);
+    secondLineWidthCal(secondlineHours);
   });
   class Basic extends Component {
     constructor(props) {
       super(props);
-      const { data, header, setEvents, setResources, resourceName, oddColor } =
-        props;
+      const { data, header, setEvents, setResources, resourceName } = props;
       currViewData.current = new SchedulerData(
         new moment(moment().utcOffset('-0700')),
         ViewTypes.Custom2,
@@ -131,8 +173,8 @@ const SchedulerUi = ({
           dayCellWidth: dayCellWidth,
           nonAgendaDayCellHeaderFormat: 'M/D|HHmm',
           customResourceTableWidth: customResourceTableWidth,
-          nonWorkingTimeBodyBgColor: oddColor,
-          nonWorkingTimeHeadBgColor: oddColor,
+          nonWorkingTimeBodyBgColor: evenColor,
+          nonWorkingTimeHeadBgColor: evenColor,
           defaultEventBgColor: '#1b74a4',
           schedulerWidth: '95%',
           resourceName: resourceName,
@@ -152,7 +194,6 @@ const SchedulerUi = ({
       currViewData.current.setEvents(data);
     }
     render() {
-      const { header, lineWidth, heading } = this.props;
       setTimeout(() => {
         map(header, (item) => {
           document.querySelector(
@@ -167,10 +208,9 @@ const SchedulerUi = ({
         );
         data.style.overflow = '';
         // data.style.width = cellWidth(size(header), -2, true);
-        console.log('diiiiiiiiv', data.scrollLeft);
-        data.setAttribute('onScroll', (e) => {
-          console.log('sdd', e);
-        });
+        // console.log('diiiiiiiiv', data.scrollLeft);
+        // data.setAttribute('onScroll', (e) => {
+        // });
       }, 50);
       return (
         <div className="scheduleName">
@@ -213,6 +253,48 @@ const SchedulerUi = ({
                 }}
               >
                 {moment(localCurrentTime).format('HHmm')}
+              </p>
+            </>
+          )}
+          {showSecondTimeline && (
+            <>
+              <div
+                id="secondLine"
+                style={{
+                  borderLeft: '3px solid red',
+                  height:
+                    30 +
+                    size(header) *
+                      toNumber(
+                        document
+                          .querySelector('.event-container')
+                          ?.style.height.replace('px', ''),
+                      ),
+                  position: 'absolute',
+                  width: 0,
+                  maxWidth: 0,
+                  marginTop: 40,
+                  marginLeft: secondlineWidth,
+                  boxShadow: ' 0px 0px 10px gray',
+                  zIndex: '999',
+                }}
+              />
+              <p
+                style={{
+                  position: 'absolute',
+                  marginTop:
+                    70 +
+                    size(header) *
+                      toNumber(
+                        document
+                          .querySelector('.event-container')
+                          ?.style.height.replace('px', ''),
+                      ),
+                  marginLeft: secondlineWidth - 16,
+                  zIndex: '999',
+                }}
+              >
+                {moment(secondlineTime).format('HHmm')}
               </p>
             </>
           )}
@@ -394,14 +476,13 @@ const SchedulerUi = ({
           <Basic
             showCurrentTime={showCurrentTime}
             showSecondTimeline={showSecondTimeline}
-            showSecondTime={showSecondTime}
+            secondTime={secondTime}
             startDate={startDate}
             endDate={endDate}
             localCurrentTime={localCurrentTime}
             lineWidth={lineWidth}
             resourceName={resourceName}
             header={header}
-            oddColor={oddColor}
             heading={heading}
             data={data}
             setEvents={(event) => {

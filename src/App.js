@@ -88,14 +88,19 @@ function App() {
       </div>
       <div style={{ float: 'right', marginRight: 20, fontWeight: 700 }}>
         EndDate=
-        {moment().utcOffset('-0700').add(14, 'hours').endOf("hour").format('MM/DD/YYYY HHmm')}
+        {moment()
+          .utcOffset('-0700')
+          .add(14, 'hours')
+          .endOf('hour')
+          .format('MM/DD/YYYY HHmm')}
       </div>
       <div style={{ float: 'right', marginRight: 20, fontWeight: 700 }}>
         StartDate=
         {moment()
           .utcOffset('-0700')
           .subtract(3, 'hours')
-          .startOf("hour").format('MM/DD/YYYY HHmm')}
+          .startOf('hour')
+          .format('MM/DD/YYYY HHmm')}
       </div>
       <div className="App">
         <SchedulerUI
@@ -107,8 +112,8 @@ function App() {
           showCurrentTime={true}
           data={demoEvents}
           header={demoResources}
-          showSecondTimeline={false}
-          showSecondTime={false}
+          showSecondTimeline={true}
+          secondTime={moment().utcOffset('-0700').add(12, 'hour')}
           dayCellWidth={'2.6%'}
           oddColor={'rgba(8}132}199}.04)'}
           scheduler={(e) => {}}
