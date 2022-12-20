@@ -1,0 +1,44 @@
+.event-item {
+  margin: 1px 0;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #fff;
+  margin-top: 13px;
+  padding-right: 20px !important;
+}
+tr {
+  border: none !important;
+  border-color: transparent;
+}
+.scheduleName {
+  margin: none !important;
+  margin-bottom: 100px !important;
+}
+.scheduleName th,
+.scheduleName td {
+  border: none;
+}
+table.resource-table th,
+table.scheduler-table th,
+table.resource-table td,
+table.scheduler-bg-table td,
+table.scheduler-table td {
+  border-right: 1px solid #dddddd;
+  border-bottom: 1px solid #ddd;
+}
+.round-tail {
+  border-radius: 14px;
+}
+.scheduler {
+  margin: 0 !important;
+  border-spacing: 0;
+}
+#RBS-Scheduler-root.scheduler {
+  margin: 0 !important;
+  border-spacing: 0;
+}
+body {
+  background-color: #f3f3f3;
+}
